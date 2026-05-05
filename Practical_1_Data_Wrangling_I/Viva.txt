@@ -1,0 +1,786 @@
+Great — you’ve shared a full **data wrangling practical code** (from your PDF ). I’ll explain it exactly how examiners expect:
+
+✔ Question
+✔ Dataset explanation
+✔ Code (line-by-line)
+✔ What each output means
+
+---
+
+# 🔷 1. QUESTION (What you are asked to do)
+
+**Data Wrangling Task:**
+You must:
+
+1. Import libraries
+2. Load dataset
+3. Explore data (info, describe, shape)
+4. Handle missing values
+5. Fix data types
+6. Normalize data
+7. Convert categorical → numeric
+
+---
+
+# 🔷 2. DATASET EXPLANATION
+
+From your code:
+
+```python
+df = pd.read_csv('/autodata.csv')
+```
+
+### 📊 Dataset Used: **Automobile Dataset**
+
+### 🔗 Source (commonly used):
+
+UCI / Kaggle Automobile Dataset
+Contains car details like:
+
+* price
+* horsepower
+* fuel type
+* body style
+* engine size
+
+---
+
+### 📌 Columns (from page 1 of your PDF)
+
+Example:
+
+* `symboling` → risk factor
+* `normalized-losses` → insurance loss
+* `make` → car brand
+* `fuel-type` → gas/diesel
+* `horsepower` → engine power
+* `price` → car price
+
+---
+
+### 📏 Dataset Size:
+
+From `df.info()`:
+
+* Rows: **201**
+* Columns: **30**
+
+---
+
+# 🔷 3. CODE EXPLANATION (LINE BY LINE)
+
+---
+
+# 🟢 STEP 1: IMPORT LIBRARIES
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+from matplotlib import pyplot
+```
+
+### 🔍 Explanation:
+
+* `pandas (pd)` → for data handling (DataFrame)
+* `numpy (np)` → numerical operations
+* `matplotlib` → plotting graphs
+
+---
+
+# 🟢 STEP 2: LOAD DATASET
+
+```python
+df = pd.read_csv('/autodata.csv')
+```
+
+### 🔍 Explanation:
+
+* Reads CSV file
+* Stores it in DataFrame `df`
+
+---
+
+# 🟢 STEP 3: DATA UNDERSTANDING
+
+---
+
+## 📌 INFO
+
+```python
+print(df.info())
+```
+
+### 🔍 What it shows:
+
+From **Page 1**:
+
+* Column names
+* Data types (int, float, object)
+* Non-null values
+
+Example:
+
+```
+201 non-null → no missing
+197 non-null → missing values exist
+```
+
+---
+
+## 📌 DESCRIBE
+
+```python
+print(df.describe())
+```
+
+### 🔍 Shows statistics (Page 1–2):
+
+* mean
+* std
+* min/max
+* quartiles
+
+Example:
+
+```
+mean horsepower ≈ 103
+max price ≈ 45400
+```
+
+---
+
+## 📌 FIRST ROWS
+
+```python
+print(df.head(10))
+```
+
+### 🔍 Shows first 10 rows (Page 2)
+
+Used to:
+
+* understand structure
+* preview data
+
+---
+
+## 📌 LAST ROWS
+
+```python
+print(df.tail())
+```
+
+### 🔍 Shows last 5 rows (Page 3)
+
+---
+
+# 🟢 STEP 4: DATA PREPROCESSING
+
+---
+
+## 📌 CHECK MISSING VALUES
+
+```python
+print(df.isnull().sum())
+```
+
+### 🔍 Output (Page 3):
+
+Example:
+
+```
+stroke → 4 missing
+horsepower → 2 missing
+peak-rpm → 2 missing
+```
+
+---
+
+# 🟢 STEP 5: HANDLE MISSING VALUES
+
+---
+
+## 📌 MEAN OF "stroke"
+
+```python
+mean_stroke = df["stroke"].astype("float").mean(axis=0)
+```
+
+### 🔍 Explanation:
+
+* Convert to float
+* Calculate average
+
+---
+
+## 📌 REPLACE NULL VALUES
+
+```python
+df["stroke"] = df["stroke"].replace(np.nan, mean_stroke)
+```
+
+### 🔍 Explanation:
+
+* Replace missing values with mean
+
+---
+
+## 📌 HORSEPOWER MEAN
+
+```python
+mean_horsepower = df["horsepower"].astype("float").mean(axis=0)
+```
+
+---
+
+## 📌 REPLACE HORSEPOWER NULLS
+
+```python
+df["horsepower"] = df["horsepower"].replace(np.nan, mean_horsepower)
+```
+
+---
+
+## 📌 MODE FOR CATEGORICAL
+
+```python
+mode = df["num-of-doors"].mode()[0]
+df["num-of-doors"] = df["num-of-doors"].replace(np.nan, mode)
+```
+
+### 🔍 Explanation:
+
+* Mode = most frequent value
+* Used for categorical data
+
+---
+
+## 📌 DROP ROWS
+
+```python
+df.dropna(subset=["horsepower-binned"], axis=0, inplace=True)
+df.reset_index(drop=True, inplace=True)
+```
+
+### 🔍 Explanation:
+
+* Remove rows with missing important column
+
+---
+
+## 📌 CHECK AGAIN
+
+```python
+print(df.isnull().sum())
+```
+
+### 🔍 Result (Page 5):
+
+```
+All values = 0 → clean dataset ✅
+```
+
+---
+
+# 🟢 STEP 6: DATA STANDARDIZATION
+
+---
+
+## 📌 CONVERT MPG → L/100km
+
+```python
+df["city-L/100km"] = 235 / df["city-mpg"]
+df["highway-L/100km"] = 235 / df["highway-mpg"]
+```
+
+### 🔍 Explanation:
+
+* Converts fuel efficiency unit
+
+---
+
+# 🟢 STEP 7: DATA NORMALIZATION
+
+---
+
+```python
+df["length"] = df["length"]/df["length"].max()
+df["width"] = df["width"]/df["width"].max()
+df["height"] = df["height"]/df["height"].max()
+```
+
+### 🔍 Explanation:
+
+* Scale values between 0 and 1
+* Formula:
+
+```
+value / max(value)
+```
+
+---
+
+# 🟢 STEP 8: CATEGORICAL → NUMERICAL
+
+---
+
+## 📌 ONE-HOT ENCODING
+
+```python
+dummy_var = pd.get_dummies(df["aspiration"])
+df = pd.concat([df, dummy_var], axis=1)
+df.drop("aspiration", axis=1, inplace=True)
+```
+
+### 🔍 Explanation:
+
+* Convert:
+
+```
+aspiration = std/turbo
+```
+
+Into:
+
+```
+std → 1/0
+turbo → 1/0
+```
+
+---
+
+# 🟢 STEP 9: DATA BINNING
+
+---
+
+## 📌 HISTOGRAM
+
+```python
+plt.hist(df["horsepower"])
+plt.show()
+```
+
+### 🔍 Output (Page 7):
+
+* Distribution of horsepower
+
+---
+
+## 📌 CREATE BINS
+
+```python
+bins = np.linspace(min(df["horsepower"]), max(df["horsepower"]), 4)
+group_names = ["Low", "Medium", "High"]
+
+df["horsepower-binned"] = pd.cut(df["horsepower"], bins, labels=group_names)
+```
+
+### 🔍 Explanation:
+
+* Divide horsepower into 3 categories:
+
+  * Low
+  * Medium
+  * High
+
+---
+
+## 📌 BAR GRAPH
+
+```python
+pyplot.bar(group_names, df["horsepower-binned"].value_counts())
+```
+
+### 🔍 Output (Page 8):
+
+* Shows count of cars in each category
+
+---
+
+# 🔷 FINAL SUMMARY (VERY IMPORTANT FOR EXAM)
+
+### ✅ What you did:
+
+✔ Imported libraries
+✔ Loaded dataset
+✔ Explored data
+✔ Handled missing values
+✔ Converted data types
+✔ Normalized data
+✔ Encoded categorical values
+✔ Performed binning
+
+---
+
+# 🔷 SHORT REVISION (WRITE THIS IN EXAM)
+
+* `info()` → structure
+* `describe()` → statistics
+* `isnull()` → missing values
+* `replace()` → fill missing
+* `get_dummies()` → categorical → numeric
+* normalization → scaling
+* binning → grouping
+
+---
+
+If you want, I can:
+✅ Convert this into **perfect handwritten exam answer format**
+✅ Or give you **viva questions + answers**
+✅ Or simplify this into **1-page notes**
+
+Here are **important Viva Questions + Answers** based on your Data Wrangling practical. These are exactly the type examiners ask 👇
+
+---
+
+# 🔷 🔥 BASIC VIVA QUESTIONS
+
+### ❓1. What is Data Wrangling?
+
+**Answer:**
+Data wrangling is the process of cleaning, transforming, and organizing raw data into a useful format for analysis.
+
+---
+
+### ❓2. Which libraries did you use?
+
+**Answer:**
+
+* pandas → data manipulation
+* numpy → numerical operations
+* matplotlib → data visualization
+
+---
+
+### ❓3. What is a DataFrame?
+
+**Answer:**
+A DataFrame is a 2D table-like structure in pandas with rows and columns.
+
+---
+
+### ❓4. How did you load the dataset?
+
+**Answer:**
+Using:
+
+```python
+df = pd.read_csv("autodata.csv")
+```
+
+---
+
+### ❓5. What does `df.info()` do?
+
+**Answer:**
+It gives:
+
+* column names
+* data types
+* non-null values
+* memory usage
+
+---
+
+### ❓6. What does `df.describe()` show?
+
+**Answer:**
+It shows statistical summary:
+
+* mean
+* standard deviation
+* min/max
+* quartiles
+
+---
+
+# 🔷 🔥 DATA PREPROCESSING QUESTIONS
+
+---
+
+### ❓7. How did you check missing values?
+
+**Answer:**
+
+```python
+df.isnull().sum()
+```
+
+---
+
+### ❓8. How did you handle missing values?
+
+**Answer:**
+
+* Numerical → replaced with mean
+* Categorical → replaced with mode
+* Some rows → dropped
+
+---
+
+### ❓9. Why use mean for missing values?
+
+**Answer:**
+Because it preserves the overall distribution of numeric data.
+
+---
+
+### ❓10. Why use mode for categorical data?
+
+**Answer:**
+Because mode is the most frequent category.
+
+---
+
+### ❓11. What is `dropna()`?
+
+**Answer:**
+It removes rows containing missing values.
+
+---
+
+# 🔷 🔥 DATA TYPES & FORMATTING
+
+---
+
+### ❓12. How do you check data types?
+
+**Answer:**
+
+```python
+df.dtypes
+```
+
+---
+
+### ❓13. Why convert data types?
+
+**Answer:**
+To perform mathematical operations correctly.
+
+---
+
+### ❓14. What is `astype()`?
+
+**Answer:**
+It is used to convert data types.
+
+Example:
+
+```python
+df["stroke"].astype("float")
+```
+
+---
+
+# 🔷 🔥 NORMALIZATION & STANDARDIZATION
+
+---
+
+### ❓15. What is normalization?
+
+**Answer:**
+Scaling values between 0 and 1.
+
+---
+
+### ❓16. Formula of normalization?
+
+**Answer:**
+
+```
+value / max(value)
+```
+
+---
+
+### ❓17. Why normalize data?
+
+**Answer:**
+To bring all features to the same scale.
+
+---
+
+### ❓18. What is standardization in your code?
+
+**Answer:**
+Converting mpg to L/100km using:
+
+```python
+235 / mpg
+```
+
+---
+
+# 🔷 🔥 CATEGORICAL DATA
+
+---
+
+### ❓19. What is categorical data?
+
+**Answer:**
+Data that represents categories (e.g., fuel type, car brand).
+
+---
+
+### ❓20. How did you convert categorical to numeric?
+
+**Answer:**
+Using:
+
+```python
+pd.get_dummies()
+```
+
+---
+
+### ❓21. What is One-Hot Encoding?
+
+**Answer:**
+Converting categories into binary (0/1) columns.
+
+---
+
+# 🔷 🔥 BINNING
+
+---
+
+### ❓22. What is binning?
+
+**Answer:**
+Grouping continuous data into categories.
+
+---
+
+### ❓23. Why use binning?
+
+**Answer:**
+To simplify data and make patterns easier to understand.
+
+---
+
+### ❓24. Which function is used for binning?
+
+**Answer:**
+
+```python
+pd.cut()
+```
+
+---
+
+### ❓25. What is `np.linspace()`?
+
+**Answer:**
+It creates evenly spaced values (used to create bins).
+
+---
+
+# 🔷 🔥 VISUALIZATION
+
+---
+
+### ❓26. Which plot did you use?
+
+**Answer:**
+Histogram and bar chart.
+
+---
+
+### ❓27. Why use histogram?
+
+**Answer:**
+To see data distribution.
+
+---
+
+### ❓28. Why use bar graph?
+
+**Answer:**
+To compare categories.
+
+---
+
+# 🔷 🔥 ADVANCED VIVA QUESTIONS
+
+---
+
+### ❓29. What happens if data is not cleaned?
+
+**Answer:**
+It leads to wrong analysis and incorrect results.
+
+---
+
+### ❓30. Difference between normalization and standardization?
+
+**Answer:**
+
+| Normalization | Standardization   |
+| ------------- | ----------------- |
+| Scale 0–1     | Mean = 0, Std = 1 |
+| Simple        | Statistical       |
+
+---
+
+### ❓31. What is feature engineering?
+
+**Answer:**
+Creating new features from existing data.
+
+---
+
+### ❓32. What is data preprocessing?
+
+**Answer:**
+Steps performed before analysis (cleaning, transforming, etc.)
+
+---
+
+# 🔷 🔥 VERY IMPORTANT (FREQUENTLY ASKED)
+
+---
+
+### ❓33. Why is data wrangling important?
+
+**Answer:**
+Because raw data is messy and not directly usable.
+
+---
+
+### ❓34. What is the difference between `head()` and `tail()`?
+
+**Answer:**
+
+* `head()` → first rows
+* `tail()` → last rows
+
+---
+
+### ❓35. What is axis in pandas?
+
+**Answer:**
+
+* axis=0 → rows
+* axis=1 → columns
+
+---
+
+# 🔷 🎯 PRO TIP (FOR YOUR VIVA)
+
+If examiner asks:
+
+👉 “Explain your project in short”
+
+Say this:
+
+👉
+"I used pandas to load and analyze the automobile dataset. I handled missing values using mean and mode, converted categorical data using one-hot encoding, normalized numerical features, and applied binning to group horsepower values. Finally, I visualized the data using histograms and bar charts."
+
+---
+
+If you want next:
+✅ I can give **MOST IMPORTANT 10 QUESTIONS ONLY (top scoring)**
+✅ OR **mock viva with answers like real examiner asks**
+
